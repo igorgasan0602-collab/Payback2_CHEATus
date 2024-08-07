@@ -1,5 +1,7 @@
 # Payback2 CHEATus, created by ABJ4403.
-[`🇮🇩️ ReadMe Bahasa Indonesia`](https://github.com/ABJ4403/Payback2_CHEATus/blob/main/README_id.md)
+![Version 2.5.1](https://img.shields.io/badge/Version-2.5.1-brightgreen?style=for-the-badge)
+![Best support v2.106.0 32bit](https://img.shields.io/badge/Best%20support-v2.106.0%2032bit-brightgreen?style=for-the-badge)
+[![ReadMe Bahasa Indonesia](https://img.shields.io/badge/README-Indonesia-brightgreen?style=for-the-badge)](https://github.com/ABJ4403/Payback2_CHEATus/blob/main/README_id.md)
 ![Pb2Chts_Preview](https://repository-images.githubusercontent.com/445452296/45a12f7e-6d44-4087-bb7c-4cff6bfe6031)
 Payback2_CHEATus is a GameGuardian Lua script for Payback 2.<br><br>
 Warning: The developer is now aware of hackers/cheaters and thus constantly patching things.
@@ -12,11 +14,11 @@ Thank you for everyone that helps this project going until now.
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=&pause=1000&color=FFFFFF&center=true&vCenter=true&random=true&width=435&lines=Wall+Hack;C4+Auto+Rig;Run+speed;Vehicle+health;blast+damage;XP,Coin;Explosion+Power;Particles;Reflective+Texture;Autoshoot;Car+drift;Weapon+Ammo;Rel0ad;car+anti-steal;Immortality;C4+Drawing;Float;Dr0wned;Clone+player;Vehicle+color,jet,acceleration;Translucent+vehicle;Disable+vehicle+noise;Car+wheel+height;Wanted+star;Win+rampage;AI+Control;Auto+unstuck+car;void+mode+&amp;+no+time+limit;Win+team+matches;Fix+broken+vehicles;RC+Car+Spam;High+score;Swag+Delivery+no+timer;Lock+entity+ID;Disable+AI+&amp;+respawn;Switch+team;Skip+match+intro)](https://git.io/typing-svg)
 
 ## Features
-- `💻️🤝️📱️ Better compatibility` (Root/VM, CBSS(todo)/Anonymous(todo)/Other, GG/Standard Lua interpreter, even minifier/beautifier/compiler. All that works without problem, compatible with each other, crash rarely happens. UPDATE: devices that primarily use CBSS/Anonymous might not having certain cheats working, though it didn't make the script crashed).
-- `🗜️ Minified version available` (if you really need that tiny size. little note, its not bleeding-edge (very latest to the original script), its rarely updated except major updates...).
+- `📈️ Memoization` (caching technique that accelerates searches on values that won't change alot).
+- `📈️ Memory restricted search` (only search in certain memory areas (warn: may not work well on certain devices).
 - `📈️ Performance experiment` (optional).
-- `📈️ Memory restricted search` (only search in certain memory areas (warn that this might not work on phones with different RAM size (mine was 2GB, better optimized for OTHER memory region, not work on Anonymous region because how it works))).
-- `📈️ Memory Memoization` (technical feature that significantly accelerates searches on values that won't change alot).
+- `🗜️ Minified version available` (if you really need that tiny size. little note, its not bleeding-edge (very latest to the original script), its rarely updated except major updates...).
+- `💻️🤝️📱️ Better compatibility` (Root/VM, CBSS(todo)/Anonymous(todo)/Other, GG/Standard Lua interpreter, even minifier/beautifier/compiler. All that works without problem, compatible with each other, crash rarely happens. UPDATE: devices that primarily use CBSS/Anonymous might not having certain cheats working, though it didn't make the script crashed).
 - `🦠❌ 0-Malware` its because...
 - `💰❌ FOSS (Free & Open-source)` the source code is not compiled (or even encrypted/obfuscated) so people can make sure this isn't malware.
 
@@ -30,10 +32,11 @@ This cheat is Open-source on GitHub (unlike any other cheats some cheater bastar
 ### Tested on:
 - Pb2 v2.104.12.4 (build 121, 32bit, no longer available due to maintenance burden)
 - Pb2 v2.106.0 (build 138, 32bit)
-- Pb2 v2.106.11 (build 1??, not compatible)
+- Pb2 v2.106.11 (build 170, not compatible)
 - GameGuardian v101.0
-- Root (using OTHER region)
-- vPhoneGaGa (using OTHER region, untested)
+- Android 7-14
+- Root (uses Other region)
+- vPhoneGaGa (uses Other region)
 
 This cheat is part of FOSS (Free and Open-Source Software)
 
