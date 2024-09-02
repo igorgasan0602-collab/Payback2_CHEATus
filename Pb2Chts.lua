@@ -43,7 +43,7 @@ MENU = function()
 	elseif CH == 13 then suspend() end
 	CH,tmp = nil,{}
 end
-function MENU_CSD()
+MENU_CSD = function()
 	local CH = gg.choice({
 		f"Cheat_CSD".."\n"..f"Cheat_CSD_Notice",
 		"1. Running speed modifier",
@@ -110,7 +110,10 @@ MENU_settings = function()
 	},nil,f"Title_Version")
 	if CH == 10 then MENU()
 	---
-	elseif CH == 1 then gg.clearResults() gg.clearList() toast('Cleared!')
+	elseif CH == 1 then
+		gg.clearResults()
+		gg.clearList()
+		toast('Cleared!')
 	---
 	elseif CH == 3 then
 		CH = gg.prompt({'Default player name:','Default custom player name:'},{cfg.PlayerCurrentName,cfg.PlayerCustomName},{'text','text'})
@@ -622,16 +625,16 @@ Ca = GG C Alloc memory region marked with yellow color, quite big, takes couple 
 				toast('No buffer found, creating new buffer.')
 			--wall hack, Basically searching "3476W;6W;?F;-17789W::15"
 				gg.searchNumber(-17789,gg.TYPE_WORD)
-				t=gg.getResults(1e3) for i=1,#t do t[i].address = (t[i].address - 0xE) end gg.loadResults(t) gg.refineNumber(3476)
-				t=gg.getResults(1e3) for i=1,#t do t[i].address = (t[i].address + 0x4) end gg.loadResults(t) gg.refineNumber(6)
-				t=gg.getResults(1e3) for i=1,#t do t[i].address = (t[i].address + 0x4) t[i].flags = gg.TYPE_FLOAT end gg.loadResults(t) gg.refineNumber(tmp[2])
+				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address - 0xE) end gg.loadResults(t) gg.refineNumber(3476)
+				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address + 0x4) end gg.loadResults(t) gg.refineNumber(6)
+				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address + 0x4) ti.flags = gg.TYPE_FLOAT end gg.loadResults(t) gg.refineNumber(tmp[2])
 				tmp[6] = gg.getResults(1)
 				gg.clearResults()
 			--entity wallhack, Basically searching "2W;16256W;?F;24W::9"
 				gg.searchNumber(16256,gg.TYPE_WORD)
-				t=gg.getResults(1e3) for i=1,#t do t[i].address = (t[i].address + 0x6) end gg.loadResults(t) gg.refineNumber(24)
-				t=gg.getResults(1e3) for i=1,#t do t[i].address = (t[i].address - 0x8) end gg.loadResults(t) gg.refineNumber(2)
-				t=gg.getResults(1e3) for i=1,#t do t[i].address = (t[i].address + 0x4) t[i].flags = gg.TYPE_FLOAT end gg.loadResults(t) gg.refineNumber(tmp[2])
+				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address + 0x6) end gg.loadResults(t) gg.refineNumber(24)
+				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address - 0x8) end gg.loadResults(t) gg.refineNumber(2)
+				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address + 0x4) ti.flags = gg.TYPE_FLOAT end gg.loadResults(t) gg.refineNumber(tmp[2])
 				table.insert(tmp[6],gg.getResults(1)[1])
 				memOzt.wallhack_gktv = tmp[6]
 			end
@@ -652,12 +655,12 @@ Ca = GG C Alloc memory region marked with yellow color, quite big, takes couple 
 				toast("Wall Hack "..tmp[4])
 			end
 		else
-			gg.setRanges(gg.REGION_C_ALLOC)
+			gg.setRanges(cfg.memRange.cAlloc)
 			if not memOzt.wallhack_agh then
 			--Optimized group search of: 576F;tmp[2]D;576F::9
 				gg.searchNumber(576,gg.TYPE_FLOAT)
-				t=gg.getResults(1e3) for i=1,#t do t[i].address = (t[i].address + 0x8) end gg.loadResults(t) gg.refineNumber(576)
-				t=gg.getResults(1e3) for i=1,#t do t[i].address = (t[i].address - 0x4) t[i].flags = gg.TYPE_DWORD end gg.loadResults(t) gg.refineNumber(tmp[2])
+				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address + 0x8) end gg.loadResults(t) gg.refineNumber(576)
+				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address - 0x4) ti.flags = gg.TYPE_DWORD end gg.loadResults(t) gg.refineNumber(tmp[2])
 				t=nil
 			end
 			handleMemOzt("wallhack_agh",tmp[2],nil,gg.TYPE_DWORD,1e3)
@@ -868,7 +871,7 @@ function cheat_floodspawn()
 			if CH == 1 or CH == 2 then -- one entity
 				toast("Please wait... you should get automatically respawned")
 				tmp[1] = handleMemOzt("matchBackendAnchor",367336,nil,gg.TYPE_DWORD,1,cfg.memZones.Common_RegionOther) -- used for auto-respawn. matchBackendAnchor is temporary name and accelerate search
-				tmp[1] = (tmp[1][1]) and tmp[1][1].address or nil -- grab address
+				tmp[1] = (tmp[1][1]) and tmp[1][1].address -- grab address
 				gg.clearResults()
 				t = handleMemOzt("floodspawn",52428800,nil,gg.TYPE_DWORD,5e3,cfg.memZones.Common_RegionOther)
 			else -- bulk
@@ -1474,7 +1477,7 @@ function cheat_plyxray()
 	end
 end
 function cheat_deleteingameplaytext()
-	gg.setRanges(gg.REGION_C_ALLOC)
+	gg.setRanges(cfg.memRange.cAlloc)
 	tmp = {
 		"Toasted",
 		"Wasted",
@@ -1770,8 +1773,9 @@ function table.copy(t)
 	return t2
 end
 function table.append(t1,t2)
+	local lt1 = #t1
 	for i=1,#t2 do
-		t1[#t1+1] = t2[i]
+		t1[lt1+i] = t2[i]
 	end
 end
 function searchWatchdog(msg,refineVal,mmBfr)
@@ -1825,9 +1829,13 @@ function optimizeRange(range)
 	This can work on every device/environment/architecture (need testing)
 ]]
 	local t = {
+		-- Base APK
 		table.unpack(gg.getRangesList(gg.getTargetInfo.sourceDir)),
-		table.unpack(gg.getRangesList(gg.getTargetInfo.sourceDir:gsub("base%.apk$","config.*.apk"))), -- for VirtualXposed
-		table.unpack(gg.getRangesList(gg.getTargetInfo.sourceDir:gsub("base%.apk$","split_config.*.apk"))) -- AOSP Split APK
+		-- Split APKs (only for configs that contain libpayback.so) for VirtualXposed, AOSP
+		table.unpack(gg.getRangesList(gg.getTargetInfo.sourceDir:gsub("base%.apk$","*config.armeabi_v7a.apk"))),
+		table.unpack(gg.getRangesList(gg.getTargetInfo.sourceDir:gsub("base%.apk$","*config.arm64_v8a.apk"))),
+		table.unpack(gg.getRangesList(gg.getTargetInfo.sourceDir:gsub("base%.apk$","*config.x86.apk"))),
+		table.unpack(gg.getRangesList(gg.getTargetInfo.sourceDir:gsub("base%.apk$","*config.x86_64.apk")))
 	}
 	local result = {
 		range[2],
@@ -1876,27 +1884,27 @@ TODO:
 		toast(f"eAchA_wait")
 	--this huge packs of "battery" below is basically searching "120W;20W;-501~30000W;13W;2B::??" in accurately optimized way
 		gg.searchNumber(32000,gg.TYPE_DWORD,nil,nil,table.unpack(cfg.memZones.Common_RegionOther)) -- 1/6 random anchor (experiment: using DWORD leads to less results = faster hopefully)
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x48) tmp[i].flags = gg.TYPE_WORD  end gg.loadResults(tmp) gg.refineNumber(120)                                       -- 2/6 shooting state (warn: value sometimes altered a bit? i rarely checked it and it sometimes shows 122 instead)
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address + 0xEF --[[on b170x64, it was +0x103 ?]]) tmp[i].flags = gg.TYPE_BYTE  end gg.loadResults(tmp) gg.refineNumber(2)            -- 3/6 (ControlCode 2B)
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0xC7 --[[on b170x64, it was +0xDB  ?]]) tmp[i].flags = gg.TYPE_QWORD end gg.loadResults(tmp) gg.refineNumber(55834574848)  -- 4/6 (HoldWeapon 0;0;13;0::W)
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0xC)  tmp[i].flags = gg.TYPE_WORD  end gg.loadResults(tmp) gg.refineNumber('-501~30000') -- 5/6 (Health -501~30000W(because carhealth&nostealcar cheat))
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x8)  end gg.loadResults(tmp) gg.refineNumber(20)                                        -- 6/6 (Anchor 20)
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0x48) ti.flags = gg.TYPE_WORD  end gg.loadResults(tmp) gg.refineNumber(120)                                       -- 2/6 shooting state (warn: value sometimes altered a bit? i rarely checked it and it sometimes shows 122 instead)
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address + 0xEF --[[on b170x64, it was +0x103 ?]]) tmp[i].flags = gg.TYPE_BYTE  end gg.loadResults(tmp) gg.refineNumber(2)            -- 3/6 (ControlCode 2B)
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0xC7 --[[on b170x64, it was +0xDB  ?]]) tmp[i].flags = gg.TYPE_QWORD end gg.loadResults(tmp) gg.refineNumber(55834574848)  -- 4/6 (HoldWeapon 0;0;13;0::W)
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0xC)  ti.flags = gg.TYPE_WORD  end gg.loadResults(tmp) gg.refineNumber('-501~30000') -- 5/6 (Health -501~30000W(because carhealth&nostealcar cheat))
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0x8)  end gg.loadResults(tmp) gg.refineNumber(20)                                        -- 6/6 (Anchor 20)
 		tmp=gg.getResults(5e3)tmp0 = #tmp
 	--if duplicate result found, find which one is the actual result (TODO: how can we frick other dupes?)
 		if tmp0 > 1 then
 			toast(f("eAchA_dupe",tmp0))
 		--shift offset to hold weapon, refine knife
-			for i=1,tmp0 do tmp[i].address = (tmp[i].address + 0x14) tmp[i].flags = gg.TYPE_QWORD end gg.loadResults(tmp) sleep(1500) gg.refineNumber(0)
+			for i=1,tmp0 do ti = tmp[i] ti.address = (ti.address + 0x14) ti.flags = gg.TYPE_QWORD end gg.loadResults(tmp) sleep(1500) gg.refineNumber(0)
 		--grab result, back to anchor
 			tmp=gg.getResults(2)
-			for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x14) end
+			for i=1,#tmp do ti = tmp[i] ti.address = (ti.address - 0x14) end
 		--if the dupes still has same value (synced), we guessed that the player its on a vehicle (build version above 121)
 			if tmp[1] and tmp[2] and tmp[1].value == tmp[2].value then
 				tmp[1] = tmp[2]
 			end
 		end
 		gg.clearResults()
-		return tmp[1] and {tmp[1].address} or nil -- one result
+		return tmp[1] and {tmp[1].address} -- one result
 	elseif cfg.entityAnchrSearchMethod == 1 then -- hold weapon
 		toast(f"holdPistol")
 		sleep(1e3)
@@ -1922,20 +1930,20 @@ TODO:
 	--tmp,tmp0=nil,nil
 		tmp0=nil
 		gg.clearResults()
-		return (t and t[1]) and {t[1].address - 0x18} or nil
+		return (t and t[1]) and {t[1].address - 0x18}
 	elseif cfg.entityAnchrSearchMethod == 3 then -- Auto anchor 2
 		toast(f"eAchC_wait")
 	--this huge packs of "battery" below is basically searching "120W;20W;-501~30000W;13W;2B::??" in accurately optimized way
 		gg.searchNumber(32000,gg.TYPE_WORD,nil,nil,table.unpack(cfg.memZones.Common_RegionOther)) -- 1/6 (random anchor)
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x48) tmp[i].flags = gg.TYPE_BYTE end gg.loadResults(tmp) gg.refineNumber('0~256') -- 2/6 (Shooting state)
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address + 0xEF) end gg.loadResults(tmp) gg.refineNumber(cfg.abjAutoAnchor2_EntityTypeRangeFrom..'~'..cfg.abjAutoAnchor2_EntityTypeRangeTo) -- 3/6 (ControlCode)
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0xC3) tmp[i].flags = gg.TYPE_WORD end gg.loadResults(tmp) gg.refineNumber('0~101')	-- 4/6 (HoldWeapon)
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x10) end gg.loadResults(tmp) gg.refineNumber('-501~30000')                        -- 5/6 (Health)
-		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x8) end gg.loadResults(tmp) gg.refineNumber(20) -- 6/6 (Anchor 20)
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0x48) ti.flags = gg.TYPE_BYTE end gg.loadResults(tmp) gg.refineNumber('0~256') -- 2/6 (Shooting state)
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address + 0xEF) end gg.loadResults(tmp) gg.refineNumber(cfg.abjAutoAnchor2_EntityTypeRangeFrom..'~'..cfg.abjAutoAnchor2_EntityTypeRangeTo) -- 3/6 (ControlCode)
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0xC3) ti.flags = gg.TYPE_WORD end gg.loadResults(tmp) gg.refineNumber('0~101')	-- 4/6 (HoldWeapon)
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0x10) end gg.loadResults(tmp) gg.refineNumber('-501~30000')                        -- 5/6 (Health)
+		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0x8) end gg.loadResults(tmp) gg.refineNumber(20) -- 6/6 (Anchor 20)
 		tmp=gg.getResults(5e3)
 		if #tmp > 0 then
 			gg.clearResults()
-			for i=1,#tmp do tmp[i]=tmp[i].address end
+			for i=1,#tmp do tmp[i] = tmp[i].address end
 			return tmp
 		end
 	else
@@ -1961,7 +1969,7 @@ function findEntityAnchr_custom(searchType)
 		for i=1,#tmp do tmp[i].address = (tmp[i].address - 0xD0) end gg.loadResults(tmp) gg.refineNumber(100)                        -- 5/6 (Health)
 		tmp=gg.getResults(5e3)
 
-	--search rc car control code (put to tmp0)
+	--search rc car control code (put to tmp0, bug: also targets unmanned tanks, helicopters, cars that are preloaded with the map, source of bug is in control code and health v:)
 		gg.clearResults()
 		for i=1,#tmp0 do tmp0[i].address = (tmp0[i].address + 0xA4) tmp0[i].flags = gg.TYPE_DWORD end gg.loadResults(tmp0) gg.refineNumber(67109120) -- 3/6 (ControlCode, uncontrolled)
 		tmp0=gg.getResults(5e3)
@@ -2030,11 +2038,11 @@ function loadConfig()
 --Loads configuration file.
 	cfg = {
 		memZones={
-			Common_RegionCalloc={0xA0000000,0xBFFFFFFF},
-			Common_RegionOther={0xB0000000,0xCFFFFFFF},
+			Common_RegionOther={0xB0000000,0x7FFFFFFFFFFFFFFF},
 		},
 		memRange={
-			cData = (gg.REGION_C_DATA | gg.REGION_OTHER),
+		--cAlloc  = (gg.REGION_C_ALLOC | gg.REGION_OTHER), -- configured below (See "Restore session file if any..")
+			cData   = (gg.REGION_C_DATA | gg.REGION_OTHER),
 			general = (gg.REGION_C_BSS | gg.REGION_ANONYMOUS | gg.REGION_OTHER),
 		},
 		clearAllList=false,
@@ -2044,7 +2052,7 @@ function loadConfig()
 		Language="auto",
 		PlayerCurrentName=":Player",
 		PlayerCustomName=":CoolFoe",
-		VERSION="2.5.0"
+		VERSION="2.5.1"
 	}
 	lastCfg = cfg
 	local cfg_load = loadfile(cfg_file)
@@ -2126,9 +2134,9 @@ end
 translationTable = {
 en_US={
 Automatic							= "Automatic",
-About_Text						= "Payback2 CHEATus, created by ABJ4403.\nCoded for build 138\nThis cheat is Open-source on GitHub (unlike any other cheats some cheater bastards not showing at all! they make it beyond proprietary)\nGitHub: https://github.com/ABJ4403/Payback2_CHEATus\nReport issues here: https://github.com/ABJ4403/Payback2_CHEATus/issues\nLicense: GPLv3\nTested on:\n- Payback2 v2.104.12.4 (not work, use script that is designed for build 121)\n- Payback2 v2.106.0 (build 138)\n- Payback2 v2.106.1 (latest build 142, some things not working)\n- GameGuardian v101.0\n\nImportant PS: Some or most of the cheats fail to work on 64bit devices, or version above 2.104.12.4 (build 121)\nEven if this script was made for build 138, most cheats doesn't work.\n\nThis cheat is part of FOSS (Free and Open-Source Software)",
+About_Text						= "Payback2 CHEATus, created by ABJ4403.\nCoded for build 138\nThis cheat is Open-source on GitHub (unlike any other cheats some cheater bastards not showing at all! they make it beyond proprietary)\nGitHub: https://github.com/ABJ4403/Payback2_CHEATus\nReport issues here: https://github.com/ABJ4403/Payback2_CHEATus/issues\nLicense: GPLv3\nTested on:\n- Payback2 v2.104.12.4 (build 121, not work, use script that is designed for build 121)\n- Payback2 v2.106.0 (build 138)\n- Payback2 v2.106.11 (build 170, most cheats dont work)\n- GameGuardian v101.0\n\nImportant PS: Some or most of the cheats fail to work on 64bit devices, or build 121\n\nThis cheat is part of FOSS (Free and Open-Source Software)",
 Credits								= "Credits",
-Credits_Text					= "Credit:\n• mdp43140 - Main Contributor\n• Mangyu - Original inspiration\n• MisterCuteX - Mega Explosion,Respawn Hack\n• tehtmi - unluac Creator (and decompile helper)\n• Crystal_Mods100x - ICE Menu\n• Latic AX & ToxicCoder - providing removed script via YT & MediaFire\n• AGH - Wall Hack,Car Health GG Values\n• GKTV - PB2 GG script (wall hack,big body,colored tree,big flamethower item,shadow,esp)\n• XxGabriel5HRxX - Car wheel height and acceleration GG Offsets\n• JokerGGS - No Blast Damage,Rel0ad,Rel0ad grenade,RTX,Immortal,Float,Ragdoll,C4,Autoshoot rocket Drawing GG Values\n• antonyROOTlegendMAXx - Transparent vehicle GG Offsets.\n• MinFRE - 6 star police GG Offsets.\n• UltraProGamerz - Controllable autoshoot value & offset.\n• [3 inspired Scripters that should not be mentioned to not cause further issues] - Vehicle-C-alloc-related cheats",
+Credits_Text					= "Credit:\n• ABJ4403 - Script creator, and founder of some of the cheats\n• mdp43140 - Main Contributor\n• Mangyu - Original inspiration\n• MisterCuteX - Mega Explosion,Respawn Hack\n• tehtmi - unluac Creator (and decompile helper)\n• Crystal_Mods100x - ICE Menu\n• Latic AX & ToxicCoder - providing removed script via YT & MediaFire\n• AGH - Wall Hack,Car Health GG Values\n• GKTV - PB2 GG script (wall hack,big body,colored tree,big flamethower item,shadow,esp)\n• XxGabriel5HRxX - Car wheel height and acceleration GG Offsets\n• JokerGGS - No Blast Damage,Rel0ad,Rel0ad grenade,RTX,Immortal,Float,Ragdoll,C4,Autoshoot rocket Drawing GG Values\n• antonyROOTlegendMAXx - Transparent vehicle GG Offsets.\n• MinFRE - 6 star police GG Offsets.\n• UltraProGamerz - Controllable autoshoot value & offset.\n• [3 inspired Scripters that should not be mentioned to not cause further issues] - Vehicle-C-alloc-related cheats",
 Disclaimer						= "Disclaimer (please read)",
 Disclaimer_Text				= "DISCLAIMER:\n	Please DO NOT abuse this script with the intent to harm fellow Payback2 players.\n	I cannot be held accountable for any actions you take while using this script.\n	Always be considerate of other players' experiences and avoid causing disruptions.\n	I strongly advise using this script exclusively in offline mode.\n	I developed this script due to the lack of available cheat scripts shared by others.",
 Exit_ThankYouMsg			= "	Report a bug: https://github.com/ABJ4403/Payback2_CHEATus/issues\n	Discussion: at https://github.com/ABJ4403/Payback2_CHEATus/discussions\n	FAQ: https://github.com/ABJ4403/Payback2_CHEATus/wiki",
@@ -2157,9 +2165,9 @@ holdKnife							= "Switch weapon to knife 🔪",
 },
 ['in']={
 Automatic							= "Otomatis",
-About_Text						= "Payback2 CHEATus, dibuat oleh ABJ4403.\nDibuat untuk versi build 138\nCheat ini bersumber-terbuka (Tidak seperti cheat lain yang cheater tidak menampilkan sama sekali! mereka membuatnya diluar proprietri)\nGitHub: https://github.com/ABJ4403/Payback2_CHEATus\nLaporkan isu disini: https://github.com/ABJ4403/Payback2_CHEATus/issues\nLisensi: GPLv3\nDiuji di:\n- Payback2 v2.104.12.4 (tidak dibuat untuk versi ini)\n- Payback2 v2.106.0\n- Payback2 v2.106.1 (beberapa tidak bisa)\n- GameGuardian v101.0\n\nPesan penting: Beberapa atau kebanyakan dari cheat tidak bekerja di perangkat 64bit, atau versi diatas 2.104.12.4 (build 121)\nKalaupun skrip ini dibuat untuk build 138, kebanyakan cheat tidak bekerja.\n\nCheat ini termasuk bagian dari FOSS (Perangkat lunak Gratis dan bersumber-terbuka)",
+About_Text						= "Payback2 CHEATus, dibuat oleh ABJ4403.\nDibuat untuk versi build 138\nCheat ini bersumber-terbuka (Tidak seperti cheat lain yang cheater tidak menampilkan sama sekali! mereka membuatnya diluar proprietri)\nGitHub: https://github.com/ABJ4403/Payback2_CHEATus\nLaporkan isu disini: https://github.com/ABJ4403/Payback2_CHEATus/issues\nLisensi: GPLv3\nDiuji di:\n- Payback2 v2.104.12.4 (build 121, tidak dibuat untuk versi ini)\n- Payback2 v2.106.0 (build 138)\n- Payback2 v2.106.11 (build 170, kebanyakan cheat tidak bekerja)\n- GameGuardian v101.0\n\nPesan penting: Beberapa atau kebanyakan dari cheat tidak bekerja di perangkat 64bit, atau build 121\nWalaupun skrip ini dibuat untuk build 138, beberapa cheat tidak bekerja.\n\nCheat ini termasuk bagian dari FOSS (Perangkat lunak Gratis dan bersumber-terbuka)",
 Credits								= "Kredit",
-Credits_Text					= "Kredit:\n• mdp43140 - Kontributor Utama\n• Mangyu - Inspirasi original\n• MisterCuteX - Mega Explosion,Respawn Hack\n• tehtmi - Pembuat unluac (dan helper dekompilasi)\n• Crystal_Mods100x - Menu ICE\n• Latic AX & ToxicCoder - menyediakan skrip yang dihapus via YT & MediaFire\n• AGH - Nilai WallHack,CarHealth GG\n• GKTV - Skrip GG Payback2 (wall hack,big body,pohon berwarna,item flamethower besar,bayangan,esp)\n• XxGabriel5HRxX - offset Tinggi roda mobil dan akselerasi mobil GG\n• JokerGGS - Nilai No Blast Damage,Rel0ad,Rel0ad grenade,RTX,Immortal,Float,Ragdoll,C4 Drawing,Autoshoot roket GG\n• antonyROOTlegendMAXx - Offset kendaraan tembus pandang GG.\n• MinFRE - Offset 6 star police GG.\n• UltraProGamerz - nilai & offset GG spam tembak\n• [3 Scripter yang terinspirasi yang seharusnya tidak disebutkan untuk tidak menyebabkan masalah] - Cheat yang berkaitan dengan kendaraan di region C-alloc",
+Credits_Text					= "Kredit:\n• ABJ4403 - Pembuat skrip, dan penemu beberapa cheat\n• mdp43140 - Kontributor Utama\n• Mangyu - Inspirasi original\n• MisterCuteX - Mega Explosion,Respawn Hack\n• tehtmi - Pembuat unluac (dan helper dekompilasi)\n• Crystal_Mods100x - Menu ICE\n• Latic AX & ToxicCoder - menyediakan skrip yang dihapus via YT & MediaFire\n• AGH - Nilai WallHack,CarHealth GG\n• GKTV - Skrip GG Payback2 (wall hack,big body,pohon berwarna,item flamethower besar,bayangan,esp)\n• XxGabriel5HRxX - offset Tinggi roda mobil dan akselerasi mobil GG\n• JokerGGS - Nilai No Blast Damage,Rel0ad,Rel0ad grenade,RTX,Immortal,Float,Ragdoll,C4 Drawing,Autoshoot roket GG\n• antonyROOTlegendMAXx - Offset kendaraan tembus pandang GG.\n• MinFRE - Offset 6 star police GG.\n• UltraProGamerz - nilai & offset GG spam tembak\n• [3 Scripter yang terinspirasi yang seharusnya tidak disebutkan untuk tidak menyebabkan masalah] - Cheat yang berkaitan dengan kendaraan di region C-alloc",
 Disclaimer						= "Disklaimer (mohon untuk dibaca)",
 Disclaimer_Text				= "DISKLAIMER:\n	Mohon JANGAN menyalahgunakan script ini dengan maksud untuk menjahili/merugikan sesama pemain Payback2.\n	Saya tidak bertanggung jawab atas tindakan akibat penggunaan skrip ini.\n	Selalu pertimbangkan pengalaman pemain lain dan hindari menyebabkan gangguan.\n	Saya sangat menyarankan menggunakan skrip ini secara eksklusif dalam mode offline.\n	Saya membuat skrip ini karena tidak ada yang membagikan skrip cheat mereka.",
 Exit_ThankYouMsg			= "	Laporkan bug: https://github.com/ABJ4403/Payback2_CHEATus/issues\n	Diskusi: https://github.com/ABJ4403/Payback2_CHEATus/discussions\n	Pertanyaan yang sering ditanyakan: https://github.com/ABJ4403/Payback2_CHEATus/wiki",
@@ -2196,6 +2204,18 @@ if not restoreSuspend() then
 	if cfg.enableAutoMemRangeOpti then
 		cfg.memZones.Common_RegionOther = optimizeRange(cfg.memZones.Common_RegionOther)
 	end
+	-- Run C-alloc region checks
+	-- On Android 13 and above, Ca region is empty and
+	-- is moved to Other region
+	cfg.memRange.cAlloc = gg.REGION_OTHER
+	local r = gg.getRangesList()
+	for i=1,#r do
+		if r[i].state == 'Ca' then
+			cfg.memRange.cAlloc = gg.REGION_C_ALLOC
+			break
+		end
+	end
+	r = nil
 end
 
 --detect if gg gui was open/floating gg icon clicked. if so, close that & show our menu.
