@@ -1,6 +1,6 @@
 # Payback2 CHEATus, dibuat oleh ABJ4403.
-[![Versi 2.5.1](https://img.shields.io/badge/Versi-2.5.1-brightgreen?style=for-the-badge)](#tested-on)
-[![Dukungan terbaik v2.106.0 32bit](https://img.shields.io/badge/Dukungan%20terbaik-v2.106.0%2032bit-brightgreen?style=for-the-badge)](#tested-on)
+[![Versi 2.5.1](https://img.shields.io/badge/Versi-2.5.1-brightgreen?style=for-the-badge)](#diuji-di)
+[![Dukungan terbaik v2.106.0 32bit](https://img.shields.io/badge/Dukungan%20terbaik-v2.106.0%2032bit-brightgreen?style=for-the-badge)](#diuji-di)
 [![ReadMe English](https://img.shields.io/badge/README-English-brightgreen?style=for-the-badge)](README.md)
 [![Laporkan isu disini](https://img.shields.io/badge/Laporkan%20isu%20disini-brightgreen?style=for-the-badge)](https://github.com/ABJ4403/Payback2_CHEATus/issues/new)
 [![Grup dukungan Telegram](https://img.shields.io/badge/Grup%20dukungan%20Telegram-brightgreen?style=for-the-badge)](https://t.me/+jCgcRExlrzExZDc1)
