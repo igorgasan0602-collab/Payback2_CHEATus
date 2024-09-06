@@ -3,7 +3,7 @@
 local gg,io,os = gg,io,os -- make these tables local to avoid extra querying (>_G.io<.open)
 gg.getFile,gg.getTargetInfo,gg.getLocale = gg.getFile():gsub("%.lua$",""),gg.getTargetInfo(),gg.getLocale() -- prefetch some gg output, also strip .lua on gg.getFile
 local susp_file,cfg_file = gg.EXT_CACHE_DIR..'/Pb2Chts.suspend.json',gg.EXT_FILES_DIR..'/Pb2Chts.conf' -- define config and suspend files
-local tmp,memOzt,t = {},{},{} -- blank table for who knows...
+local tmp,memOzt,tmpMemRange,tmpMemRangeFound,t = {},{},{},{},{} -- blank table for who knows...
 local curVal,CH,cfg,lastCfg,curr_lang,lang,translationTable -- preallocate stuff for who knows...
 local MENU,MENU_CSD,MENU_godmode,MENU_godmode_bulk,MENU_matchmode,MENU_permVehicle,MENU_settings
 --————————————————————————————————--
@@ -148,11 +148,17 @@ MENU_settings = function()
 	elseif CH == 6 then
 		cfg.enableAutoMemRangeOpti = not cfg.enableAutoMemRangeOpti
 		toast("You need to restart to apply the changes.\nDisabling this will slow down search for a bit, but ensures compatibility in cases where the value isn't found on other devices")
-	---
+	elseif CH == 7 then
+		cfg.enableTmpMemRange = not cfg.enableAutoMemRangeOpti
+		toast("You need to restart to apply the changes.\nDisabling this will slow down search for a bit, but ensures compatibility in cases where the value isn't found on other devices")
 	elseif CH == 8 then
+		resetTmpMemRange()
+		toast('Cleared!')
+	---
+	elseif CH == 10 then
 		saveConfig()
 		MENU_settings()
-	elseif CH == 9 then
+	elseif CH == 11 then
 		cfg.clearAllList=false
 		cfg.enableAutoMemRangeOpti=true
 		cfg.enableLogging=false
@@ -658,7 +664,7 @@ Ca = GG C Alloc memory region marked with yellow color, quite big, takes couple 
 			gg.setRanges(cfg.memRange.cAlloc)
 			if not memOzt.wallhack_agh then
 			--Optimized group search of: 576F;tmp[2]D;576F::9
-				gg.searchNumber(576,gg.TYPE_FLOAT)
+				gg.searchNumber(576,gg.TYPE_FLOAT,nil,nil,table.unpack(tmpMemRange.wallhackAgh))
 				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address + 0x8) end gg.loadResults(t) gg.refineNumber(576)
 				t=gg.getResults(1e3) for i=1,#t do local ti = t[i] ti.address = (ti.address - 0x4) ti.flags = gg.TYPE_DWORD end gg.loadResults(t) gg.refineNumber(tmp[2])
 				t=nil
@@ -667,6 +673,7 @@ Ca = GG C Alloc memory region marked with yellow color, quite big, takes couple 
 			if gg.getResultCount() == 0 then
 				toast(f"ErrNotFound_Report")
 			else
+				setTmpMemRange("wallhackAgh",memOzt.wallhack_agh[1].address)
 				for i=1,#memOzt.wallhack_agh do
 					memOzt.wallhack_agh[i].value = tmp[3]
 				end
@@ -873,10 +880,10 @@ function cheat_floodspawn()
 				tmp[1] = handleMemOzt("matchBackendAnchor",367336,nil,gg.TYPE_DWORD,1,cfg.memZones.Common_RegionOther) -- used for auto-respawn. matchBackendAnchor is temporary name and accelerate search
 				tmp[1] = (tmp[1][1]) and tmp[1][1].address -- grab address
 				gg.clearResults()
-				t = handleMemOzt("floodspawn",52428800,nil,gg.TYPE_DWORD,5e3,cfg.memZones.Common_RegionOther)
+				t = handleMemOzt("floodspawn",52428800,nil,gg.TYPE_DWORD,5e3,tmpMemRange.playerFloodspawnStuff)
 			else -- bulk
 				gg.clearResults()
-				gg.searchNumber(52428800,gg.TYPE_DWORD,nil,nil,table.unpack(cfg.memZones.Common_RegionOther))
+				gg.searchNumber(52428800,gg.TYPE_DWORD,nil,nil,table.unpack(tmpMemRange.playerFloodspawnStuff))
 				t = gg.getResults(5e3)
 			end
 
@@ -902,6 +909,8 @@ function cheat_floodspawn()
 
 		--if found
 			if gg.getResultCount() > 0 then
+				-- optimization
+				setTmpMemRange("playerFloodspawnStuff",t[1].address)
 				-- grab current team
 				gg.loadResults({{address=t[1].address - 0x3C,flags=gg.TYPE_DWORD}})
 				local currentTeam = gg.getResults(1)[1].value
@@ -1867,6 +1876,37 @@ function optimizeRange(range)
 	log(("[AutoMemOpti] Reduced scanned memory zone: %X—%X → %X—%X"):format(range[1],range[2],result[1],result[2]))
 	return next(t) and result or range -- if there {}?? on the table, return the previously given input, else return the result.
 end
+function findTableWithRangeInBetween(ts,v)
+  if not v then return end
+  local kA,kB = "start","end"
+  for i=1,#ts do
+    local t = ts[i]
+    if v >= t[kA] and v <= t[kB] then
+      return {t[kA],t[kB]}
+    end
+  end
+end
+function setTmpMemRange(name,address)
+  if not tmpMemRangeFound[name] and cfg.enableTmpMemRange then
+    local res =
+      findTableWithRangeInBetween(gg.getRangesList(),address)
+    if res then
+  	log(("[AutoMemOpti] Reduced scanned memory ranges for %s: %X—%X → %X—%X"):format(name,tmpMemRange[name][1] or 0,tmpMemRange[name][2] or -1,res[1],res[2]))
+      tmpMemRange[name] = res
+      tmpMemRangeFound[name] = true
+    end
+  end
+end
+function resetTmpMemRange()
+-- Customize
+  for i in pairs(tmpMemRangeFound) do
+    tmpMemRangeFound[i] = false
+    tmpMemRange[i] = {0,-1}
+  end
+  tmpMemRange.entitiesZone = cfg.memZones.Common_RegionOther
+  tmpMemRange.playerFloodspawnStuff = cfg.memZones.Common_RegionOther
+  tmpMemRange.wallhackAgh = {0,-1}
+end
 function findEntityAnchr()
 --[[
 
@@ -1883,7 +1923,7 @@ TODO:
 	if cfg.entityAnchrSearchMethod == 2 then -- Auto anchor
 		toast(f"eAchA_wait")
 	--this huge packs of "battery" below is basically searching "120W;20W;-501~30000W;13W;2B::??" in accurately optimized way
-		gg.searchNumber(32000,gg.TYPE_DWORD,nil,nil,table.unpack(cfg.memZones.Common_RegionOther)) -- 1/6 random anchor (experiment: using DWORD leads to less results = faster hopefully)
+		gg.searchNumber(32000,gg.TYPE_DWORD,nil,nil,table.unpack(tmpMemRange.entitiesZone)) -- 1/6 random anchor (experiment: using DWORD leads to less results = faster hopefully)
 		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0x48) ti.flags = gg.TYPE_WORD  end gg.loadResults(tmp) gg.refineNumber(120)                                       -- 2/6 shooting state (warn: value sometimes altered a bit? i rarely checked it and it sometimes shows 122 instead)
 		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address + 0xEF --[[on b170x64, it was +0x103 ?]]) tmp[i].flags = gg.TYPE_BYTE  end gg.loadResults(tmp) gg.refineNumber(2)            -- 3/6 (ControlCode 2B)
 		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0xC7 --[[on b170x64, it was +0xDB  ?]]) tmp[i].flags = gg.TYPE_QWORD end gg.loadResults(tmp) gg.refineNumber(55834574848)  -- 4/6 (HoldWeapon 0;0;13;0::W)
@@ -1904,11 +1944,14 @@ TODO:
 			end
 		end
 		gg.clearResults()
-		return tmp[1] and {tmp[1].address} -- one result
+		if tmp[1] then
+			setTmpMemRange("entitiesZone",tmp[1].address)
+			return {tmp[1].address} -- one result
+		end
 	elseif cfg.entityAnchrSearchMethod == 1 then -- hold weapon
 		toast(f"holdPistol")
 		sleep(1e3)
-		gg.searchNumber(13,gg.TYPE_DWORD,nil,nil,table.unpack(cfg.memZones.Common_RegionOther))
+		gg.searchNumber(13,gg.TYPE_DWORD,nil,nil,table.unpack(tmpMemRange.entitiesZone))
 		t = gg.getResults(200)
 		tmp0 = #t
 		local isKnife = true
@@ -1930,11 +1973,14 @@ TODO:
 	--tmp,tmp0=nil,nil
 		tmp0=nil
 		gg.clearResults()
-		return (t and t[1]) and {t[1].address - 0x18}
+		if t and t[1] then
+			setTmpMemRange("entitiesZone",t[1].address)
+			return {t[1].address - 0x18}
+		end
 	elseif cfg.entityAnchrSearchMethod == 3 then -- Auto anchor 2
 		toast(f"eAchC_wait")
 	--this huge packs of "battery" below is basically searching "120W;20W;-501~30000W;13W;2B::??" in accurately optimized way
-		gg.searchNumber(32000,gg.TYPE_WORD,nil,nil,table.unpack(cfg.memZones.Common_RegionOther)) -- 1/6 (random anchor)
+		gg.searchNumber(32000,gg.TYPE_WORD,nil,nil,table.unpack(tmpMemRange.entitiesZone)) -- 1/6 (random anchor)
 		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0x48) ti.flags = gg.TYPE_BYTE end gg.loadResults(tmp) gg.refineNumber('0~256') -- 2/6 (Shooting state)
 		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address + 0xEF) end gg.loadResults(tmp) gg.refineNumber(cfg.abjAutoAnchor2_EntityTypeRangeFrom..'~'..cfg.abjAutoAnchor2_EntityTypeRangeTo) -- 3/6 (ControlCode)
 		tmp=gg.getResults(5e3)for i=1,#tmp do local ti = tmp[i] ti.address = (ti.address - 0xC3) ti.flags = gg.TYPE_WORD end gg.loadResults(tmp) gg.refineNumber('0~101')	-- 4/6 (HoldWeapon)
@@ -1944,6 +1990,7 @@ TODO:
 		if #tmp > 0 then
 			gg.clearResults()
 			for i=1,#tmp do tmp[i] = tmp[i].address end
+			if tmp[1] then setTmpMemRange("entitiesZone",tmp[1]) end
 			return tmp
 		end
 	else
@@ -1959,7 +2006,7 @@ function findEntityAnchr_custom(searchType)
 	if not searchType then return nil end
 	toast(f"eAchC_wait")
 	if searchType == 'blowables' then -- C4s and RC Cars
-		gg.searchNumber(32000,gg.TYPE_WORD,nil,nil,table.unpack(cfg.memZones.Common_RegionOther)) -- 1/6 (random anchor)
+		gg.searchNumber(32000,gg.TYPE_WORD,nil,nil,table.unpack(tmpMemRange.entitiesZone)) -- 1/6 (random anchor)
 		tmp=gg.getResults(5e3) -- will be reused
 		tmp0 = table.copy(tmp) -- make a copy for 2nd searches
 
@@ -1981,7 +2028,7 @@ function findEntityAnchr_custom(searchType)
 		for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x8) end gg.loadResults(tmp) gg.refineNumber(20) -- 6/6 (Anchor 20)
 		tmp=gg.getResults(5e3)
 	elseif searchType == 'blownUp' then -- exploded tanks or other (persistent) vehicles
-		gg.searchNumber(32000,gg.TYPE_WORD,nil,nil,table.unpack(cfg.memZones.Common_RegionOther)) -- 1/6 (random anchor)
+		gg.searchNumber(32000,gg.TYPE_WORD,nil,nil,table.unpack(tmpMemRange.entitiesZone)) -- 1/6 (random anchor)
 		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x48) tmp[i].flags = gg.TYPE_BYTE end gg.loadResults(tmp) gg.refineNumber(120) -- 2/6 (Shooting state, idle)
 		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address + 0xEF) end gg.loadResults(tmp) gg.refineNumber('4~7') -- 3/6 (ControlCode, uncontrolled)
 		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0xC3) tmp[i].flags = gg.TYPE_WORD end gg.loadResults(tmp) gg.refineNumber('0~101')	-- 4/6 (HoldWeapon)
@@ -1989,7 +2036,7 @@ function findEntityAnchr_custom(searchType)
 		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x8) end gg.loadResults(tmp) gg.refineNumber(20) -- 6/6 (Anchor 20)
 		tmp=gg.getResults(5e3)
 	elseif searchType == 'player' then
-		gg.searchNumber(32000,gg.TYPE_WORD,nil,nil,table.unpack(cfg.memZones.Common_RegionOther)) -- 1/6 random anchor
+		gg.searchNumber(32000,gg.TYPE_WORD,nil,nil,table.unpack(tmpMemRange.entitiesZone)) -- 1/6 random anchor
 		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0x48) end gg.loadResults(tmp) gg.refineNumber(120)                                       -- 2/6 shooting state (warn: value sometimes altered a bit? i rarely checked it and it sometimes shows 122 instead)
 		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address + 0xEF) tmp[i].flags = gg.TYPE_BYTE  end gg.loadResults(tmp) gg.refineNumber(2)            -- 3/6 (ControlCode 2B)
 		tmp=gg.getResults(5e3)for i=1,#tmp do tmp[i].address = (tmp[i].address - 0xC7) tmp[i].flags = gg.TYPE_QWORD end gg.loadResults(tmp) gg.refineNumber(55834574848)  -- 4/6 (HoldWeapon 0;0;13;0::W)
@@ -2000,6 +2047,7 @@ function findEntityAnchr_custom(searchType)
 	if gg.getResultCount() > 0 then
 		gg.clearResults()
 		for i=1,#tmp do tmp[i]=tmp[i].address end
+		setTmpMemRange("entitiesZone",t[1])
 		return tmp
 	end
 end
@@ -2014,6 +2062,7 @@ function suspend()
 	gg.saveVariable({
 		cfg=cfg,
 		memOzt=memOzt,
+		tmpMemRange=tmpMemRange,
 		pid=gg.getTargetInfo.pid,
 	},susp_file)
 	print(f"Suspend_Text")
@@ -2047,12 +2096,13 @@ function loadConfig()
 		},
 		clearAllList=false,
 		enableAutoMemRangeOpti=true,
+		enableTmpMemRange=true,
 		enableLogging=false,
 		entityAnchrSearchMethod=2,
 		Language="auto",
 		PlayerCurrentName=":Player",
 		PlayerCustomName=":CoolFoe",
-		VERSION="2.5.1"
+		VERSION="2.5.2"
 	}
 	lastCfg = cfg
 	local cfg_load = loadfile(cfg_file)
@@ -2078,6 +2128,7 @@ function restoreSuspend()
 			toast(f"Suspend_Detected")
 			cfg = susp.cfg
 			memOzt = susp.memOzt
+			tmpMemRange = susp.tmpMemRange
 			susp = nil
 			return true
 		end
@@ -2204,6 +2255,8 @@ if not restoreSuspend() then
 	if cfg.enableAutoMemRangeOpti then
 		cfg.memZones.Common_RegionOther = optimizeRange(cfg.memZones.Common_RegionOther)
 	end
+	-- Fill up temp memory range
+	resetTmpMemRange()
 	-- Run C-alloc region checks
 	-- On Android 13 and above, Ca region is empty and
 	-- is moved to Other region
