@@ -1,0 +1,34 @@
+local password='1234'--Enter Password(Password in video)
+local Crack = gg.prompt(
+{"ENTER PASSWORD"},{""},{"TEXT"})
+if Crack == nil then
+print("🗿ENJOY🗿")
+os.exit()
+elseiff Crack[1]==pass then
+print("PASSWORD CONFIRMED🔓")
+else
+print("PASSWORD REJECTED🔒")
+os.exit
+end
+
+menu gg.alert("PLS SUBSCRIBE TO PHÖNK_HACKS
+gg.choice({'Fly hack','No reload','Good mode','Speed hack','Exit'},nil,'Made by PHÖNK_HACKS')
+if menu==1 then
+gg.alert('Subscribe to PHÖNK_HACKS')
+end
+if menu==2 then
+gg.searchNumber('5',gg.TYPE_DWORD)
+gg.setResults(100)
+gg.editAll('10',gg.TYPE_DWORD
+end
+if menu==3 then
+gg.setFly(300)
+end
+if menu==4 then
+gg.searchNumbet('6.78647',gg.TYPE_FLOAT)
+gg.setResults(100)
+gg.editAll('77.90',gg.TYPE_FLOAT)
+end
+if menu==5 then
+os.exit()
+end
